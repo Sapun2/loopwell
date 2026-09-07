@@ -1,0 +1,7 @@
+Loopwell - UX Prototype (ICT725) - Figma interactive prototype
+
+https://www.figma.com/design/yZf92ARQOn7lqavVbicKaS/Loopwell---UX-Prototype--ICT725-?node-id=14-3
+
+Structure: 3 pages - Cover, Wireframes (5 linked low-fidelity screens), Hi-Fi Prototype (7 high-fidelity frames: onboarding x3, Home, Add/Edit Habit, Habit Detail & Stats, Settings).
+
+This is the same link already included in the Assessment 2 report (Section 11) and must also appear in the Assessment 3 report. Confirm it is still set to "Anyone with the link can view" before submitting either report.
