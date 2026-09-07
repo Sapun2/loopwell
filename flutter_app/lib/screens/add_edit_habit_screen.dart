@@ -12,11 +12,9 @@ enum _Frequency { everyDay, weekdays, custom }
 const _everyDay = {1, 2, 3, 4, 5, 6, 7};
 const _weekdaysOnly = {1, 2, 3, 4, 5};
 
-/// FR3 (create), FR7 (edit / delete). A single scroll form for name, icon,
-/// colour, and frequency, plus FR4's reminder time, with the primary action
-/// pinned to the bottom. Sensible defaults are pre-selected so a new habit
-/// can be saved with zero decisions if the user just wants to move fast.
-/// Laid out against design/screenshots/hifi_3_addedit.png.
+/// Form for creating and editing a habit: name, icon, colour, frequency and
+/// an optional reminder, with the primary action pinned to the bottom. Every
+/// field carries a default so a habit can be created by entering a name.
 class AddEditHabitScreen extends StatefulWidget {
   const AddEditHabitScreen({super.key, this.habitId});
 
@@ -42,7 +40,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
   @override
   void initState() {
     super.initState();
-    final existing = _isEditing ? context.read<HabitStore>().byId(widget.habitId!) : null;
+    final existing =
+        _isEditing ? context.read<HabitStore>().byId(widget.habitId!) : null;
 
     _nameController = TextEditingController(text: existing?.name ?? '');
     _iconKey = existing?.iconKey ?? HabitIcons.defaultKey;
@@ -51,7 +50,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
     _frequency = _frequencyFor(_weekdays);
     _reminderOn = existing?.hasReminder ?? false;
     _reminderTime = (existing != null && existing.hasReminder)
-        ? TimeOfDay(hour: existing.reminderHour!, minute: existing.reminderMinute!)
+        ? TimeOfDay(
+            hour: existing.reminderHour!, minute: existing.reminderMinute!)
         : null;
   }
 
@@ -87,8 +87,7 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
         case _Frequency.weekdays:
           _weekdays = {..._weekdaysOnly};
         case _Frequency.custom:
-          // Keep whatever is already selected so switching to Custom does
-          // not silently wipe the user's days.
+          // Preserve the current selection when switching to Custom.
           break;
       }
     });
@@ -102,8 +101,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
       );
       return;
     }
-    // Turning the reminder on without ever picking a time would otherwise
-    // save a reminder of "null" that the UI then renders as Off.
+    // A reminder enabled without a time would persist as null and render
+    // back as Off, so prompt for one before saving.
     if (_reminderOn && _reminderTime == null) {
       await _pickTime();
       if (!mounted || _reminderTime == null) return;
@@ -168,8 +167,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
     final store = context.read<HabitStore>();
     final navigator = Navigator.of(context);
     await store.deleteHabit(widget.habitId!);
-    // Pop back to the shell: the Habit Detail route underneath this one is
-    // now showing a habit that no longer exists.
+    // Unwind to the shell: any detail route below this one now points at a
+    // habit that no longer exists.
     navigator.popUntil((route) => route.isFirst);
   }
 
@@ -216,8 +215,9 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
               textCapitalization: TextCapitalization.sentences,
               textInputAction: TextInputAction.done,
               decoration: const InputDecoration(hintText: 'e.g. Drink Water'),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? 'Give the habit a name.' : null,
+              validator: (value) => (value == null || value.trim().isEmpty)
+                  ? 'Give the habit a name.'
+                  : null,
             ),
             const SizedBox(height: AppSpacing.lg),
 
@@ -248,7 +248,9 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
                     child: Icon(
                       entry.value,
                       size: 22,
-                      color: selected ? swatch : theme.colorScheme.onSurfaceVariant,
+                      color: selected
+                          ? swatch
+                          : theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 );
@@ -278,7 +280,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
                       ),
                     ),
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: colour, shape: BoxShape.circle),
+                      decoration:
+                          BoxDecoration(color: colour, shape: BoxShape.circle),
                     ),
                   ),
                 );
@@ -308,9 +311,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
                 ),
               ],
             ),
-            // The Mon..Sun picker only appears under Custom, so the common
-            // "every day" case stays a one-tap decision (Figma shows the
-            // three presets at rest).
+            // The per-day picker is only shown for Custom, keeping the
+            // common case to a single tap.
             if (_frequency == _Frequency.custom) ...[
               const SizedBox(height: AppSpacing.md),
               Wrap(
@@ -336,16 +338,21 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: selected ? AppColors.primary : theme.colorScheme.surface,
+                        color: selected
+                            ? AppColors.primary
+                            : theme.colorScheme.surface,
                         border: Border.all(
-                          color: selected ? AppColors.primary : theme.dividerColor,
+                          color:
+                              selected ? AppColors.primary : theme.dividerColor,
                         ),
                       ),
                       child: Text(
                         _weekdayLabels[i],
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: selected ? Colors.white : theme.colorScheme.onSurface,
+                          color: selected
+                              ? Colors.white
+                              : theme.colorScheme.onSurface,
                         ),
                       ),
                     ),
@@ -366,16 +373,19 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
                   children: [
                     Icon(
                       Icons.notifications_none_rounded,
-                      color: _reminderOn ? AppColors.primary : theme.colorScheme.onSurfaceVariant,
+                      color: _reminderOn
+                          ? AppColors.primary
+                          : theme.colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Remind me daily', style: theme.textTheme.titleMedium),
+                          Text('Remind me daily',
+                              style: theme.textTheme.titleMedium),
                           const SizedBox(height: 2),
-                          // The time doubles as the button to change it.
+                          // The displayed time doubles as the control to change it.
                           InkWell(
                             onTap: _reminderOn ? _pickTime : null,
                             child: Padding(
@@ -390,7 +400,9 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
                                   color: _reminderOn
                                       ? AppColors.primary
                                       : theme.colorScheme.onSurfaceVariant,
-                                  fontWeight: _reminderOn ? FontWeight.w600 : FontWeight.w400,
+                                  fontWeight: _reminderOn
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
                                 ),
                               ),
                             ),
@@ -412,8 +424,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
           ],
         ),
       ),
-      // Pinned rather than the last item in the scroll, so the primary
-      // action is always reachable without scrolling on a small screen.
+      // Pinned rather than scrolled, so the primary action stays reachable
+      // on a small screen.
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: theme.scaffoldBackgroundColor,
@@ -435,7 +447,8 @@ class _AddEditHabitScreenState extends State<AddEditHabitScreen> {
 }
 
 class _FrequencyChip extends StatelessWidget {
-  const _FrequencyChip({required this.label, required this.selected, required this.onTap});
+  const _FrequencyChip(
+      {required this.label, required this.selected, required this.onTap});
 
   final String label;
   final bool selected;
@@ -450,10 +463,9 @@ class _FrequencyChip extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.pill),
-        // No `alignment` and no fixed width: a Container with alignment set
-        // expands to the incoming max width, which stacked the three pills
-        // one per row instead of laying them out side by side. The vertical
-        // padding is what gets this to the 44pt minimum touch height.
+        // A Container with `alignment` set expands to the incoming maximum
+        // width, which would stack the pills one per row. Vertical padding
+        // supplies the 44pt minimum touch height instead of a fixed size.
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
@@ -480,8 +492,8 @@ class _FrequencyChip extends StatelessWidget {
   }
 }
 
-/// Wraps a small visual control in a >=44x44 gesture area (NFR:
-/// accessibility) without changing how big the control itself looks.
+/// Gives a small control a minimum 44x44 gesture area without changing its
+/// painted size.
 class _TapTarget extends StatelessWidget {
   const _TapTarget({
     required this.child,
@@ -506,10 +518,9 @@ class _TapTarget extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          // widthFactor/heightFactor keep this Align sized to the child. A
-          // bare Center expands to the incoming max width instead, which
-          // inside a Wrap makes every item full-width and forces one item
-          // per row.
+          // widthFactor/heightFactor keep the Align sized to its child; a
+          // bare Center would expand to the incoming maximum width and force
+          // one item per row inside a Wrap.
           child: Center(widthFactor: 1, heightFactor: 1, child: child),
         ),
       ),

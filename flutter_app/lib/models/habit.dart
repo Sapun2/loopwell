@@ -1,8 +1,8 @@
 import 'habit_icons.dart';
 
-/// yyyy-MM-dd date key used for the completions list and all "same day"
-/// comparisons. A hand-rolled string (not DateFormat) so there is zero
-/// dependency on locale/ICU data being initialised.
+/// The yyyy-MM-dd key used for the completions list and all same-day
+/// comparisons. Built by hand rather than with DateFormat so it carries no
+/// dependency on locale data being initialised.
 String dateKey(DateTime date) {
   final y = date.year.toString().padLeft(4, '0');
   final m = date.month.toString().padLeft(2, '0');
@@ -39,28 +39,28 @@ class Habit {
   int? reminderHour;
   int? reminderMinute;
 
-  /// yyyy-MM-dd keys, one per day the habit was marked done. Deliberately a
-  /// List not a Set so it round-trips through JSON with no extra encoding.
+  /// One yyyy-MM-dd key per completed day. A List rather than a Set so it
+  /// round-trips through JSON without additional encoding.
   final List<String> completions;
 
   final DateTime createdAt;
 
   bool get hasReminder => reminderHour != null && reminderMinute != null;
 
-  /// Human-readable repeat rule, e.g. "Every day", "Weekdays", "3 days a
-  /// week". Used as the habit card subtitle when there is no streak yet,
-  /// and on the Habit Detail reminder card.
+  /// Human-readable repeat rule, such as "Every day" or "3 days a week".
   String get frequencyLabel {
     final days = weekdays.toSet();
     if (days.length == 7) return 'Every day';
-    if (days.length == 5 && days.containsAll(const {1, 2, 3, 4, 5})) return 'Weekdays';
-    if (days.length == 2 && days.containsAll(const {6, 7})) return 'Weekends';
+    if (days.length == 5 && days.containsAll(_workDays)) return 'Weekdays';
+    if (days.length == 2 && days.containsAll(_weekendDays)) return 'Weekends';
     if (days.length == 1) return 'Every ${_weekdayNames[days.first]!}';
     return '${days.length} days a week';
   }
 
-  /// "Monday" for 1 ... "Sunday" for 7. Used for accessibility labels on
-  /// the weekday picker and for [frequencyLabel].
+  static const _workDays = {1, 2, 3, 4, 5};
+  static const _weekendDays = {6, 7};
+
+  /// "Monday" for 1 through "Sunday" for 7.
   static String weekdayName(int weekday) => _weekdayNames[weekday] ?? '';
 
   static const Map<int, String> _weekdayNames = {
@@ -86,10 +86,9 @@ class Habit {
     }
   }
 
-  /// Consecutive scheduled days, ending today, that were completed. Today
-  /// gets a grace period: if it is scheduled but not yet completed, that
-  /// does not break the streak (the day is not over yet) — but any earlier
-  /// missed scheduled day does.
+  /// Consecutive completed scheduled days ending today. Today is given a
+  /// grace period: if it is scheduled but not yet completed the streak
+  /// survives, while any earlier missed scheduled day ends it.
   int get currentStreak {
     var streak = 0;
     final today = startOfDay(DateTime.now());
@@ -110,9 +109,9 @@ class Habit {
     return streak;
   }
 
-  /// Fraction (0.0-1.0) of scheduled days in the last [days] days
-  /// (including today) that were completed. 0 if nothing was scheduled in
-  /// range yet (e.g. a habit created minutes ago).
+  /// Proportion (0.0-1.0) of scheduled days in the last [days] days,
+  /// including today, that were completed. Returns 0 when nothing was
+  /// scheduled in range.
   double completionRate(int days) {
     final today = startOfDay(DateTime.now());
     final earliest = startOfDay(createdAt);
@@ -129,10 +128,9 @@ class Habit {
     return done / scheduled;
   }
 
-
-  /// The longest run of consecutive scheduled days ever completed. Shown as
-  /// "Best" on Habit Detail. Like [currentStreak] this is derived on read,
-  /// never persisted — it would go stale the moment a day is un-ticked.
+  /// The longest run of consecutive completed scheduled days. Like
+  /// [currentStreak] this is derived on read rather than persisted, which
+  /// would go stale as soon as a day were un-ticked.
   int get bestStreak {
     if (completions.isEmpty) return 0;
     final earliest = startOfDay(createdAt);
@@ -155,9 +153,8 @@ class Habit {
     return best;
   }
 
-  /// Completion rate across the habit's whole life so far, as a percentage
-  /// of the days it was actually scheduled on. Shown as "Completion" on
-  /// Habit Detail.
+  /// Completion rate over the habit's lifetime, as a proportion of the days
+  /// it was actually scheduled.
   double get lifetimeCompletionRate {
     final earliest = startOfDay(createdAt);
     final today = startOfDay(DateTime.now());
@@ -183,7 +180,8 @@ class Habit {
       colorIndex: colorIndex ?? this.colorIndex,
       weekdays: weekdays ?? List<int>.from(this.weekdays),
       reminderHour: clearReminder ? null : (reminderHour ?? this.reminderHour),
-      reminderMinute: clearReminder ? null : (reminderMinute ?? this.reminderMinute),
+      reminderMinute:
+          clearReminder ? null : (reminderMinute ?? this.reminderMinute),
       completions: List<String>.from(completions),
       createdAt: createdAt,
     );
@@ -216,7 +214,7 @@ class Habit {
                 ?.map((e) => e as String)
                 .toList() ??
             <String>[],
-        createdAt:
-            DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+            DateTime.now(),
       );
 }

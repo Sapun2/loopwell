@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// The circular progress dial on the Home summary card. Draws a track ring
-/// plus a filled sweep, with the percentage centred inside — matching the
-/// "60%" dial in design/screenshots/hifi_2_home.png.
+/// Circular progress dial: a track ring, a filled sweep and the percentage
+/// centred inside.
 class ProgressRing extends StatelessWidget {
   const ProgressRing({
     super.key,

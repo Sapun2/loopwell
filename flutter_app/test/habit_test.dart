@@ -1,7 +1,5 @@
-// Unit tests for the derived statistics on Habit. These are pure functions
-// over the completions list, so they can be tested without a widget tree —
-// and they are the parts most worth testing, because a wrong streak is the
-// kind of bug a user notices immediately but a screenshot never shows.
+// Unit tests for the statistics derived from a Habit's completion history.
+// These are pure functions over the completions list and need no widget tree.
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:loopwell/models/habit.dart';
@@ -35,27 +33,31 @@ void main() {
 
   group('currentStreak', () {
     test('is zero for a habit with no completions', () {
-      expect(habitWith(createdDaysAgo: 5, completedOffsets: []).currentStreak, 0);
+      expect(
+          habitWith(createdDaysAgo: 5, completedOffsets: []).currentStreak, 0);
     });
 
     test('counts consecutive completed days up to today', () {
       expect(
-        habitWith(createdDaysAgo: 10, completedOffsets: [0, 1, 2]).currentStreak,
+        habitWith(createdDaysAgo: 10, completedOffsets: [0, 1, 2])
+            .currentStreak,
         3,
       );
     });
 
     test('an unlogged today does not break the streak', () {
-      // The day is not over yet, so yesterday's run should still stand.
+      // The day is not over, so the preceding run still stands.
       expect(
-        habitWith(createdDaysAgo: 10, completedOffsets: [1, 2, 3]).currentStreak,
+        habitWith(createdDaysAgo: 10, completedOffsets: [1, 2, 3])
+            .currentStreak,
         3,
       );
     });
 
     test('a missed earlier day does break the streak', () {
       expect(
-        habitWith(createdDaysAgo: 10, completedOffsets: [0, 1, 3, 4]).currentStreak,
+        habitWith(createdDaysAgo: 10, completedOffsets: [0, 1, 3, 4])
+            .currentStreak,
         2,
       );
     });
@@ -67,7 +69,7 @@ void main() {
     });
 
     test('finds the longest historical run, not just the current one', () {
-      // A 4-day run last week, a 2-day run now.
+      // A four-day run last week and a two-day run now.
       final habit = habitWith(
         createdDaysAgo: 20,
         completedOffsets: [0, 1, 7, 8, 9, 10],
@@ -79,20 +81,22 @@ void main() {
 
   group('completionRate', () {
     test('is 1.0 when every scheduled day in range was completed', () {
-      final habit = habitWith(createdDaysAgo: 6, completedOffsets: [0, 1, 2, 3, 4, 5, 6]);
+      final habit =
+          habitWith(createdDaysAgo: 6, completedOffsets: [0, 1, 2, 3, 4, 5, 6]);
       expect(habit.completionRate(7), 1.0);
     });
 
     test('ignores days before the habit existed', () {
-      // Created 2 days ago, both of those days done: 100%, not 3/30.
+      // Created two days ago with both days completed: 100%, not 3/30.
       final habit = habitWith(createdDaysAgo: 2, completedOffsets: [0, 1, 2]);
       expect(habit.completionRate(30), 1.0);
     });
 
     test('is zero when nothing is scheduled in range', () {
-      // Sundays only, but created today — so nothing scheduled has elapsed
-      // unless today happens to be a Sunday.
-      final habit = habitWith(createdDaysAgo: 0, completedOffsets: [], weekdays: const [7]);
+      // Sundays only and created today, so nothing scheduled has elapsed
+      // unless today is itself a Sunday.
+      final habit = habitWith(
+          createdDaysAgo: 0, completedOffsets: [], weekdays: const [7]);
       if (DateTime.now().weekday != DateTime.sunday) {
         expect(habit.completionRate(7), 0.0);
       }
@@ -101,19 +105,27 @@ void main() {
 
   group('frequencyLabel', () {
     test('names the common presets', () {
-      expect(habitWith(createdDaysAgo: 1, completedOffsets: []).frequencyLabel, 'Every day');
+      expect(habitWith(createdDaysAgo: 1, completedOffsets: []).frequencyLabel,
+          'Every day');
       expect(
-        habitWith(createdDaysAgo: 1, completedOffsets: [], weekdays: const [1, 2, 3, 4, 5])
-            .frequencyLabel,
+        habitWith(
+            createdDaysAgo: 1,
+            completedOffsets: [],
+            weekdays: const [1, 2, 3, 4, 5]).frequencyLabel,
         'Weekdays',
       );
       expect(
-        habitWith(createdDaysAgo: 1, completedOffsets: [], weekdays: const [6, 7]).frequencyLabel,
+        habitWith(
+            createdDaysAgo: 1,
+            completedOffsets: [],
+            weekdays: const [6, 7]).frequencyLabel,
         'Weekends',
       );
       expect(
-        habitWith(createdDaysAgo: 1, completedOffsets: [], weekdays: const [1, 3, 5])
-            .frequencyLabel,
+        habitWith(
+            createdDaysAgo: 1,
+            completedOffsets: [],
+            weekdays: const [1, 3, 5]).frequencyLabel,
         '3 days a week',
       );
     });
@@ -155,7 +167,8 @@ void main() {
 
   group('copyWith', () {
     test('clearReminder drops both halves of the reminder', () {
-      final habit = Habit(id: 'a', name: 'A', reminderHour: 8, reminderMinute: 0);
+      final habit =
+          Habit(id: 'a', name: 'A', reminderHour: 8, reminderMinute: 0);
       final cleared = habit.copyWith(clearReminder: true);
       expect(cleared.reminderHour, isNull);
       expect(cleared.reminderMinute, isNull);

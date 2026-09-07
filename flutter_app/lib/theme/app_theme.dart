@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Every colour used anywhere in the app lives here. Nothing should be
-/// hardcoded as a literal Color(...) inside a screen — pull it from
-/// AppColors instead, so the app stays visually consistent with the Figma
-/// prototype and with design/design_tokens.md.
+/// The application palette. Screens must not declare literal `Color` values;
+/// every colour is referenced from here so the design system stays in one
+/// place.
 class AppColors {
   AppColors._();
 
@@ -21,10 +20,8 @@ class AppColors {
   static const green = Color(0xFF3BB273);
   static const greenTint = Color(0xFFDFF5E7);
 
-  /// Destructive actions. The Figma prototype uses the Coral token for
-  /// "Delete Habit" / "Sign Out" rather than a separate red, so Coral is
-  /// the error colour here too — see design_tokens.md ("Coral — optional
-  /// habit colour, destructive accents").
+  /// Destructive actions. The palette uses Coral for these rather than a
+  /// separate red.
   static const error = coral;
 
   static const bgLight = Color(0xFFF6F7FB);
@@ -39,11 +36,9 @@ class AppColors {
   static const mutedDark = Color(0xFF9AA0B4);
   static const borderDark = Color(0xFF2C2E42);
 
-  /// The six habit colour swatches offered on the Add / Edit Habit screen.
-  /// A Habit stores an *index* into this list (see Habit.colorIndex), never
-  /// a raw Color — that keeps persistence a plain int and avoids any
-  /// dependency on Color's int-conversion API, which has changed across
-  /// Flutter versions.
+  /// Habit colour swatches. A [Habit] stores an index into this list rather
+  /// than a raw `Color`, keeping persistence to a plain integer and avoiding
+  /// any dependence on Color's int-conversion API.
   static const List<Color> habitSwatches = [
     primary,
     teal,
@@ -53,8 +48,7 @@ class AppColors {
     green,
   ];
 
-  /// Light background tints, in the same order as [habitSwatches] — used
-  /// behind a habit's icon on cards.
+  /// Background tints, in the same order as [habitSwatches].
   static const List<Color> habitSwatchTints = [
     primaryTint,
     tealTint,
@@ -70,9 +64,8 @@ class AppColors {
   static Color tintAt(int index) =>
       habitSwatchTints[index.clamp(0, habitSwatchTints.length - 1)];
 
-  /// Tints are designed for the light theme (they are near-white). On dark
-  /// surfaces they blow out, so derive a low-alpha version of the swatch
-  /// instead. Every "icon on a tinted circle" in the app goes through here.
+  /// The tints are near-white and therefore only suit the light theme; on
+  /// dark surfaces a low-alpha version of the swatch is used instead.
   static Color tintFor(BuildContext context, int index) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return dark ? swatchAt(index).withValues(alpha: 0.18) : tintAt(index);
@@ -125,9 +118,8 @@ class AppTheme {
     required Color muted,
     required Color border,
   }) {
-    // Start from a seeded Material 3 scheme (fills in every tonal surface
-    // role correctly for the current Flutter version) then overwrite the
-    // handful of roles that must match the Loopwell brand hexes exactly.
+    // Start from a seeded Material 3 scheme so every tonal role is filled
+    // in, then override the roles that must match the brand palette exactly.
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       brightness: brightness,
@@ -138,9 +130,8 @@ class AppTheme {
       onSecondary: Colors.white,
       surface: surface,
       onSurface: onSurface,
-      // Material 3 routes a lot of "muted caption" work through
-      // onSurfaceVariant; pin it to the Muted token so secondary text is
-      // the same grey everywhere instead of a tonal approximation.
+      // Material 3 routes muted caption text through onSurfaceVariant; pin
+      // it so secondary text is the same grey throughout.
       onSurfaceVariant: muted,
       outline: border,
       outlineVariant: border,
@@ -149,14 +140,23 @@ class AppTheme {
     );
 
     final textTheme = TextTheme(
-      displaySmall: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: onSurface, height: 1.25),
-      titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: onSurface),
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: onSurface),
-      bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: onSurface),
-      bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: onSurface),
-      bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: muted),
+      displaySmall: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
+          color: onSurface,
+          height: 1.25),
+      titleLarge: TextStyle(
+          fontSize: 20, fontWeight: FontWeight.bold, color: onSurface),
+      titleMedium: TextStyle(
+          fontSize: 16, fontWeight: FontWeight.w600, color: onSurface),
+      bodyLarge: TextStyle(
+          fontSize: 16, fontWeight: FontWeight.normal, color: onSurface),
+      bodyMedium: TextStyle(
+          fontSize: 14, fontWeight: FontWeight.normal, color: onSurface),
+      bodySmall:
+          TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: muted),
       labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      // Uppercase section labels on Add/Edit and Settings.
+      // Uppercase group labels used on forms and in Settings.
       labelSmall: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
@@ -245,7 +245,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          // WCAG 2.1 AA / NFR: no tappable control below 44pt.
+          // No tappable control falls below the 44pt minimum.
           minimumSize: const Size(64, 44),
           textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
@@ -258,13 +258,18 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? Colors.white : surface,
+          (states) =>
+              states.contains(WidgetState.selected) ? Colors.white : surface,
         ),
         trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? AppColors.primary : border,
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.primary
+              : border,
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? AppColors.primary : border,
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.primary
+              : border,
         ),
       ),
       dividerTheme: DividerThemeData(color: border, space: 1, thickness: 1),
@@ -286,7 +291,8 @@ class AppTheme {
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.pill)),
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(AppRadius.pill)),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -308,7 +314,8 @@ class AppTheme {
           color: Colors.white,
           fontWeight: FontWeight.w600,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
+        padding:
+            const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.pill),
         ),

@@ -5,16 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/habit.dart';
 
-/// Single source of truth for app data: the habit list, theme mode, and
-/// onboarding status. A plain ChangeNotifier is enough here — the data set
-/// is small and there is no server state to reconcile, so a heavier state
-/// management package would be complexity without benefit (see NFR:
-/// Privacy — no account, everything lives on this device).
+/// Single source of truth for application data: the habit list, theme mode
+/// and onboarding status, persisted to local storage.
 ///
-/// Convention: screens must only mutate habits through this store's
-/// methods (addHabit / updateHabit / toggleCompletion / deleteHabit), never
-/// by calling mutating methods on a Habit object pulled from [habits]
-/// directly — otherwise the change will not be persisted or notified.
+/// Screens must mutate habits through this store's methods rather than
+/// calling mutating methods on a [Habit] taken from [habits]; a direct
+/// mutation is neither persisted nor notified.
 class HabitStore extends ChangeNotifier {
   HabitStore._(this._prefs);
 
@@ -40,10 +36,12 @@ class HabitStore extends ChangeNotifier {
 
   /// Initials for the Settings profile avatar ("Pradeep Bhandari" -> "PB").
   String get userInitials {
-    final parts = _userName.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
+    final parts =
+        _userName.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts.first.characters.first.toUpperCase();
-    return (parts.first.characters.first + parts.last.characters.first).toUpperCase();
+    return (parts.first.characters.first + parts.last.characters.first)
+        .toUpperCase();
   }
 
   /// "Member since" date for the profile row: the oldest habit's createdAt,
@@ -63,10 +61,9 @@ class HabitStore extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final store = HabitStore._(prefs);
     final seeded = store._load();
-    // Write the seed straight back out. Without this the sample habits are
-    // regenerated relative to "now" on every cold start, so createdAt and
-    // the whole completion history silently shift a day each launch and the
-    // streaks stop making sense.
+    // Persist the seed immediately. Otherwise the sample habits are
+    // regenerated relative to "now" on every cold start and their history
+    // shifts by a day each launch.
     if (seeded) await store._persistHabits();
     return store;
   }
@@ -77,7 +74,9 @@ class HabitStore extends ChangeNotifier {
     _notificationsEnabled = _prefs.getBool(_notificationsKey) ?? false;
 
     final modeIndex = _prefs.getInt(_themeModeKey);
-    if (modeIndex != null && modeIndex >= 0 && modeIndex < ThemeMode.values.length) {
+    if (modeIndex != null &&
+        modeIndex >= 0 &&
+        modeIndex < ThemeMode.values.length) {
       _themeMode = ThemeMode.values[modeIndex];
     }
 
@@ -92,16 +91,12 @@ class HabitStore extends ChangeNotifier {
             .toList();
         return false;
       } catch (_) {
-        // Corrupt local data should never crash the app on launch — start
-        // fresh instead. This only ever affects this one device, there is
-        // no server copy at risk.
+        // Corrupt local data must not prevent launch; start fresh instead.
         _habits = [];
         return true;
       }
     }
-    // First ever launch: seed a few sample habits so Home is not an empty,
-    // unscreenshottable void. Real usage starts from FR3 (Create habit)
-    // same as any other habit.
+    // First launch: seed sample habits so the dashboard is not empty.
     _habits = _seedHabits();
     return true;
   }
@@ -117,10 +112,8 @@ class HabitStore extends ChangeNotifier {
     await _prefs.setBool(_onboardingKey, true);
   }
 
-  /// Used by Settings > Sign Out. There is no real account system (see
-  /// NFR: Privacy), so "signing out" is implemented honestly as returning
-  /// to onboarding rather than faking a login screen with nothing behind
-  /// it.
+  /// Backs Settings > Sign Out. There is no account system, so this returns
+  /// the user to onboarding rather than presenting a login screen.
   Future<void> resetOnboarding() async {
     _onboardingComplete = false;
     notifyListeners();
@@ -186,7 +179,7 @@ class HabitStore extends ChangeNotifier {
   List<Habit> scheduledFor(DateTime date) =>
       _habits.where((h) => h.isScheduledOn(date)).toList();
 
-  /// Pretty-printed JSON of every habit, for Settings > Data & Export.
+  /// Pretty-printed JSON of every habit, used by Settings > Data & Export.
   String exportJson() {
     final payload = {
       'exportedAt': DateTime.now().toIso8601String(),
@@ -220,22 +213,27 @@ class HabitStore extends ChangeNotifier {
       return habit;
     }
 
-    // Mirrors the Figma Home frame (design/screenshots/hifi_2_home.png):
-    // five habits, three of them already done today, with enough history
-    // behind them for the Detail heat map to be worth looking at.
+    // Five habits, three already completed today, with enough history for
+    // the heat map to be meaningful.
     List<int> run(int from, int to, {Set<int> skip = const {}}) => [
           for (var d = from; d <= to; d++)
             if (!skip.contains(d)) d,
         ];
 
     return [
-      seed('seed-1', 'Drink Water', 'water', 1, 40, run(0, 33, skip: {12, 19, 27})),
-      seed('seed-2', 'Read 20 Pages', 'book', 0, 40, run(0, 30, skip: {5, 6, 13, 20, 21, 28})),
-      seed('seed-3', 'Strength Training', 'fitness', 3, 40, run(0, 24, skip: {3, 4, 10, 17, 18, 24})),
-      seed('seed-4', 'Morning Run', 'run', 2, 40, run(1, 26, skip: {2, 9, 15, 16, 23})),
-      seed('seed-5', 'Sleep by 11pm', 'sleep', 4, 40, run(1, 29, skip: {7, 8, 14, 22})),
+      seed('seed-1', 'Drink Water', 'water', 1, 40,
+          run(0, 33, skip: {12, 19, 27})),
+      seed('seed-2', 'Read 20 Pages', 'book', 0, 40,
+          run(0, 30, skip: {5, 6, 13, 20, 21, 28})),
+      seed('seed-3', 'Strength Training', 'fitness', 3, 40,
+          run(0, 24, skip: {3, 4, 10, 17, 18, 24})),
+      seed('seed-4', 'Morning Run', 'run', 2, 40,
+          run(1, 26, skip: {2, 9, 15, 16, 23})),
+      seed('seed-5', 'Sleep by 11pm', 'sleep', 4, 40,
+          run(1, 29, skip: {7, 8, 14, 22})),
     ];
   }
 
-  static String newId() => DateTime.now().microsecondsSinceEpoch.toRadixString(36);
+  static String newId() =>
+      DateTime.now().microsecondsSinceEpoch.toRadixString(36);
 }

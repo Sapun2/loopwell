@@ -7,10 +7,8 @@ import '../services/habit_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/section_label.dart';
 
-/// The Profile destination behind the fourth bottom-nav icon, and the
-/// target of the profile row at the top of Settings. There is no account
-/// system (NFR: Privacy), so this is an on-device profile: an editable
-/// display name plus lifetime totals.
+/// On-device profile: an editable display name and lifetime totals. There is
+/// no account system, so nothing here leaves the device.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -77,19 +75,20 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
-
           const SectionLabel('Lifetime'),
           Row(
             children: [
-              Expanded(child: _Tile(value: '${habits.length}', label: 'Habits')),
+              Expanded(
+                  child: _Tile(value: '${habits.length}', label: 'Habits')),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(child: _Tile(value: '$totalCompletions', label: 'Completions')),
+              Expanded(
+                  child:
+                      _Tile(value: '$totalCompletions', label: 'Completions')),
               const SizedBox(width: AppSpacing.sm),
               Expanded(child: _Tile(value: '$bestEver', label: 'Best streak')),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-
           const SectionLabel('Today'),
           Card(
             child: Padding(
@@ -111,7 +110,6 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-
           Text(
             'Loopwell keeps everything on this device. There is no account to '
             'sign in to and nothing is uploaded anywhere.',
@@ -167,13 +165,15 @@ class _Tile extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md, horizontal: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.md, horizontal: AppSpacing.sm),
         child: Column(
           children: [
             FittedBox(
               child: Text(
                 value,
-                style: theme.textTheme.titleLarge?.copyWith(color: AppColors.primary),
+                style: theme.textTheme.titleLarge
+                    ?.copyWith(color: AppColors.primary),
               ),
             ),
             const SizedBox(height: 2),

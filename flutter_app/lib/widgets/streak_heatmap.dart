@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import '../models/habit.dart';
 import '../theme/app_theme.dart';
 
-/// A 5-week x 7-day grid, Sunday first (matching the S M T W T F S header in
-/// design/screenshots/hifi_4_detail.png), oldest week at the top.
+/// A five-week by seven-day grid, Sunday first, oldest week at the top.
 ///
-/// Filled in the habit colour = completed. Faint filled = a day the habit
-/// was not scheduled, was before the habit existed, or is still ahead.
-/// Outlined in the habit colour = scheduled and missed.
+/// A filled cell was completed; an outlined cell was scheduled and missed; a
+/// faint cell was not scheduled, predates the habit, or is still ahead.
 class StreakHeatmap extends StatelessWidget {
   const StreakHeatmap({super.key, required this.habit});
 
@@ -21,9 +19,9 @@ class StreakHeatmap extends StatelessWidget {
     final swatch = AppColors.swatchAt(habit.colorIndex);
     final today = startOfDay(DateTime.now());
 
-    // Always end the grid on the Saturday of the current week, so the
-    // layout is stable and does not reshuffle day to day. DateTime.weekday
-    // is 1=Mon..7=Sun, so Sunday needs to map to column 0.
+    // The grid always ends on the Saturday of the current week so the layout
+    // does not reshuffle daily. DateTime.weekday runs 1=Mon..7=Sun, so Sunday
+    // maps to column zero.
     final columnOfToday = today.weekday % 7;
     final endOfThisWeek = today.add(Duration(days: 6 - columnOfToday));
     final gridStart = endOfThisWeek.subtract(const Duration(days: 34));
@@ -36,7 +34,8 @@ class StreakHeatmap extends StatelessWidget {
       ),
     );
 
-    final dayLabelStyle = Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11);
+    final dayLabelStyle =
+        Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +54,8 @@ class StreakHeatmap extends StatelessWidget {
             children: [
               for (final date in week)
                 Expanded(
-                  child: _Cell(date: date, habit: habit, swatch: swatch, today: today),
+                  child: _Cell(
+                      date: date, habit: habit, swatch: swatch, today: today),
                 ),
             ],
           ),

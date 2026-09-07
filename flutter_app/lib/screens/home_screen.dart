@@ -10,9 +10,8 @@ import '../widgets/progress_ring.dart';
 import 'add_edit_habit_screen.dart';
 import 'habit_detail_screen.dart';
 
-/// FR2. The daily dashboard and hub of the app: a greeting, an honest
-/// summary of today's progress, and every habit with one-tap completion
-/// (FR5). Laid out against design/screenshots/hifi_2_home.png.
+/// The daily dashboard: a greeting, a summary of today's progress, and the
+/// habit list with one-tap completion.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -29,7 +28,8 @@ class HomeScreen extends StatelessWidget {
     final now = DateTime.now();
     final today = startOfDay(now);
     final scheduledToday = store.scheduledFor(today);
-    final doneToday = scheduledToday.where((h) => h.isCompletedOn(today)).length;
+    final doneToday =
+        scheduledToday.where((h) => h.isCompletedOn(today)).length;
     final theme = Theme.of(context);
 
     return SafeArea(
@@ -41,7 +41,7 @@ class HomeScreen extends StatelessWidget {
                 AppSpacing.screenMargin,
                 AppSpacing.md,
                 AppSpacing.screenMargin,
-                // Clear the docked FAB and nav bar at the bottom of the list.
+                // Clearance for the docked action button and navigation bar.
                 96,
               ),
               children: [
@@ -93,9 +93,8 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// The filled Primary card at the top of Home. Deliberately states the
-/// honest count — habits *scheduled for today*, not the whole list — so a
-/// habit that only runs on weekdays does not read as "missed" on a Sunday.
+/// Progress card at the top of the dashboard. Counts only habits scheduled
+/// for today, so a weekday-only habit is not reported as missed on a Sunday.
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({required this.done, required this.total});
   final int done;
@@ -190,7 +189,8 @@ class _EmptyState extends StatelessWidget {
                 color: AppColors.primaryTint,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.checklist_rounded, size: 44, color: AppColors.primary),
+              child: const Icon(Icons.checklist_rounded,
+                  size: 44, color: AppColors.primary),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text('No habits yet', style: theme.textTheme.titleLarge),
@@ -205,7 +205,8 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             SizedBox(
               width: 220,
-              child: ElevatedButton(onPressed: onAdd, child: const Text('Add a habit')),
+              child: ElevatedButton(
+                  onPressed: onAdd, child: const Text('Add a habit')),
             ),
           ],
         ),

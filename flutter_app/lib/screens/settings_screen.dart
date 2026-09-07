@@ -9,8 +9,8 @@ import '../widgets/section_label.dart';
 import '../widgets/settings_tile.dart';
 import 'profile_screen.dart';
 
-/// FR8. Notifications, appearance, data export, and profile, grouped to
-/// match design/screenshots/hifi_5_settings.png.
+/// Application preferences: notifications, appearance, data export and
+/// profile.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -29,9 +29,9 @@ class SettingsScreen extends StatelessWidget {
           96,
         ),
         children: [
-          Text('Settings', style: theme.textTheme.displaySmall?.copyWith(fontSize: 26)),
+          Text('Settings',
+              style: theme.textTheme.displaySmall?.copyWith(fontSize: 26)),
           const SizedBox(height: AppSpacing.md),
-
           _ProfileCard(
             initials: store.userInitials,
             name: store.userName,
@@ -41,7 +41,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-
           const SectionLabel('Preferences'),
           SettingsTile(
             icon: Icons.notifications_none_rounded,
@@ -51,7 +50,8 @@ class SettingsScreen extends StatelessWidget {
                 : 'Turned off',
             trailing: Switch(
               value: store.notificationsEnabled,
-              onChanged: (value) => context.read<HabitStore>().setNotificationsEnabled(value),
+              onChanged: (value) =>
+                  context.read<HabitStore>().setNotificationsEnabled(value),
             ),
             onTap: () => context
                 .read<HabitStore>()
@@ -72,7 +72,6 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _showExportDialog(context, store),
           ),
           const SizedBox(height: AppSpacing.lg),
-
           const SectionLabel('Support'),
           SettingsTile(
             icon: Icons.menu_book_outlined,
@@ -86,7 +85,6 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _showFeedback(context),
           ),
           const SizedBox(height: AppSpacing.xl),
-
           Center(
             child: TextButton(
               onPressed: () => _confirmSignOut(context),
@@ -109,8 +107,8 @@ class SettingsScreen extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       builder: (sheetContext) {
-        // Watch inside the sheet so the radio selection updates live as the
-        // whole app re-themes underneath it.
+        // Watched inside the sheet so the selection tracks the store while
+        // the app re-themes underneath it.
         final store = sheetContext.watch<HabitStore>();
         return SafeArea(
           child: Column(
@@ -129,15 +127,15 @@ class SettingsScreen extends StatelessWidget {
                   style: Theme.of(sheetContext).textTheme.titleMedium,
                 ),
               ),
-              // RadioGroup is the current API — RadioListTile's own
-              // groupValue/onChanged pair is deprecated.
+              // RadioListTile's own groupValue/onChanged pair is deprecated
+              // in favour of RadioGroup.
               RadioGroup<ThemeMode>(
                 groupValue: store.themeMode,
                 onChanged: (value) {
                   if (value == null) return;
                   sheetContext.read<HabitStore>().setThemeMode(value);
-                  // Commit and close, the way a modal chooser is expected to
-                  // behave — the new theme is visible immediately behind it.
+                  // Commit and dismiss; the new theme is applied behind the
+                  // sheet immediately.
                   Navigator.of(sheetContext).pop();
                 },
                 child: Column(
@@ -170,13 +168,14 @@ class SettingsScreen extends StatelessWidget {
         title: const Text('Data & Export'),
         content: SizedBox(
           width: double.maxFinite,
-          // Cap the height so a long export scrolls inside the dialog
-          // instead of overflowing it on a short screen.
+          // Capped so a long export scrolls inside the dialog rather than
+          // overflowing it on a short screen.
           height: MediaQuery.of(dialogContext).size.height * 0.45,
           child: SingleChildScrollView(
             child: SelectableText(
               json,
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 11, height: 1.4),
+              style: const TextStyle(
+                  fontFamily: 'monospace', fontSize: 11, height: 1.4),
             ),
           ),
         ),
@@ -186,7 +185,8 @@ class SettingsScreen extends StatelessWidget {
               Clipboard.setData(ClipboardData(text: json));
               Navigator.of(dialogContext).pop();
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Habit data copied to clipboard.')),
+                const SnackBar(
+                    content: Text('Habit data copied to clipboard.')),
               );
             },
             child: const Text('Copy'),
@@ -205,8 +205,9 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       applicationName: 'Loopwell',
       applicationVersion: '1.0.0',
-      applicationIcon: const Icon(Icons.all_inclusive_rounded, color: AppColors.primary, size: 40),
-      applicationLegalese: 'Built for ICT725 — Assessment 3.',
+      applicationIcon: const Icon(Icons.all_inclusive_rounded,
+          color: AppColors.primary, size: 40),
+      applicationLegalese: '© 2026 Pradeep Bhandari',
       children: const [
         SizedBox(height: AppSpacing.md),
         Text(
@@ -225,9 +226,9 @@ class SettingsScreen extends StatelessWidget {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Send Feedback'),
         content: const Text(
-          'Loopwell has no backend, so there is nowhere to send feedback to '
-          'from inside the app. For the ICT725 build, feedback was gathered '
-          'through the Assessment 2 usability testing instead.',
+          'Loopwell runs entirely on your device and has no backend, so there '
+          'is nowhere to send feedback from inside the app yet. In-app '
+          'feedback is planned for a future release.',
         ),
         actions: [
           TextButton(
@@ -256,11 +257,10 @@ class SettingsScreen extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
-              // Just flip the flag and unwind to the root route. The root
-              // gate in main.dart watches the store and swaps Onboarding in
-              // for the shell on its own — pushing Onboarding manually here
-              // (and clearing the stack under it) would strand the user,
-              // because completing onboarding could then never swap back.
+              // Flip the flag and unwind to the root route; the gate in
+              // main.dart swaps onboarding back in. Pushing onboarding here
+              // and clearing the stack would strand the user, because
+              // completing it could never swap the shell back.
               context.read<HabitStore>().resetOnboarding();
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
@@ -333,7 +333,8 @@ class _ProfileCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: theme.colorScheme.onSurfaceVariant),
+              Icon(Icons.chevron_right_rounded,
+                  color: theme.colorScheme.onSurfaceVariant),
             ],
           ),
         ),

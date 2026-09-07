@@ -4,11 +4,9 @@ import 'package:provider/provider.dart';
 import '../services/habit_store.dart';
 import '../theme/app_theme.dart';
 
-/// FR1. A three-slide carousel, one idea per slide, on the full-bleed
-/// Primary background from design/screenshots/hifi_1a-1c_onboarding.png.
-/// Skip is available on the first two slides; every path ends on Get
-/// Started, which marks onboarding complete and hands control back to the
-/// reactive gate in main.dart (no explicit navigation needed from here).
+/// Three-slide introduction carousel. Skip is offered on the first two
+/// slides; every path ends on Get Started, which marks onboarding complete
+/// and hands control back to the root gate in `main.dart`.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -31,13 +29,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       icon: Icons.local_fire_department_rounded,
       title: 'Stay Consistent',
       tagline: "Build streaks you're proud of.",
-      body: 'Visual streak counters and gentle reminders keep you on track — guilt-free.',
+      body:
+          'Visual streak counters and gentle reminders keep you on track — guilt-free.',
     ),
     _SlideData(
       icon: Icons.insights_rounded,
       title: 'Track Your Progress',
       tagline: 'See it all at a glance.',
-      body: "A simple daily dashboard shows exactly how you're doing, today and over time.",
+      body:
+          "A simple daily dashboard shows exactly how you're doing, today and over time.",
     ),
   ];
 
@@ -63,8 +63,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Reserve the Skip row's height on every slide so the slide
-            // content does not jump upward when Skip disappears on slide 3.
+            // Height is reserved on every slide so the content does not
+            // shift when Skip disappears on the last one.
             SizedBox(
               height: 48,
               child: Align(
@@ -75,7 +75,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         padding: const EdgeInsets.only(right: AppSpacing.md),
                         child: TextButton(
                           onPressed: _finish,
-                          style: TextButton.styleFrom(foregroundColor: Colors.white),
+                          style: TextButton.styleFrom(
+                              foregroundColor: Colors.white),
                           child: const Text('Skip'),
                         ),
                       ),
@@ -99,15 +100,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: active ? 20 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: active ? Colors.white : Colors.white.withValues(alpha: 0.4),
+                    color: active
+                        ? Colors.white
+                        : Colors.white.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 );
               }),
             ),
             const SizedBox(height: AppSpacing.xl),
-            // Slides 1-2 advance with the circular arrow on the trailing
-            // edge; slide 3 commits with the full-width Get Started pill.
+            // Earlier slides advance with the circular arrow; the last one
+            // commits with a full-width button.
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
@@ -175,12 +178,10 @@ class _SlideView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Scrollable so the slide still works on a short screen in landscape
-    // rather than overflowing; centred when there is room to spare.
+    // Scrollable so a short viewport does not overflow; centred otherwise.
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Shrink the logo mark on short viewports so it never squeezes the
-        // copy off-screen on a compact phone.
+        // Shrink the logo mark on short viewports so the copy still fits.
         final markSize = constraints.maxHeight < 420 ? 96.0 : 160.0;
 
         return SingleChildScrollView(
@@ -208,7 +209,8 @@ class _SlideView extends StatelessWidget {
                 Text(
                   data.title,
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.displaySmall?.copyWith(color: Colors.white),
+                  style: theme.textTheme.displaySmall
+                      ?.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(

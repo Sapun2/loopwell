@@ -7,13 +7,10 @@ import '../screens/settings_screen.dart';
 import '../screens/stats_screen.dart';
 import '../theme/app_theme.dart';
 
-/// The persistent chrome around the four top-level destinations: a bottom
-/// navigation bar with a docked "+" button in the middle, exactly as in the
-/// Figma Home and Settings frames.
+/// Persistent chrome around the four top-level destinations: a bottom
+/// navigation bar with a docked action button.
 ///
-/// An [IndexedStack] is used rather than swapping the child outright so each
-/// tab keeps its own scroll position when you come back to it — switching
-/// tabs and losing your place halfway down a habit list reads as a bug.
+/// An [IndexedStack] preserves each tab's scroll position across switches.
 class AppShell extends StatefulWidget {
   const AppShell({super.key, this.initialIndex = 0});
 
@@ -27,10 +24,22 @@ class _AppShellState extends State<AppShell> {
   late int _index = widget.initialIndex;
 
   static const _destinations = <_Destination>[
-    _Destination(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Today'),
-    _Destination(icon: Icons.bar_chart_outlined, activeIcon: Icons.bar_chart_rounded, label: 'Stats'),
-    _Destination(icon: Icons.wb_sunny_outlined, activeIcon: Icons.wb_sunny_rounded, label: 'Settings'),
-    _Destination(icon: Icons.person_outline, activeIcon: Icons.person_rounded, label: 'Profile'),
+    _Destination(
+        icon: Icons.home_outlined,
+        activeIcon: Icons.home_rounded,
+        label: 'Today'),
+    _Destination(
+        icon: Icons.bar_chart_outlined,
+        activeIcon: Icons.bar_chart_rounded,
+        label: 'Stats'),
+    _Destination(
+        icon: Icons.wb_sunny_outlined,
+        activeIcon: Icons.wb_sunny_rounded,
+        label: 'Settings'),
+    _Destination(
+        icon: Icons.person_outline,
+        activeIcon: Icons.person_rounded,
+        label: 'Profile'),
   ];
 
   void _openAddHabit() {
@@ -71,15 +80,16 @@ class _AppShellState extends State<AppShell> {
 }
 
 class _Destination {
-  const _Destination({required this.icon, required this.activeIcon, required this.label});
+  const _Destination(
+      {required this.icon, required this.activeIcon, required this.label});
   final IconData icon;
   final IconData activeIcon;
   final String label;
 }
 
-/// Hand-rolled rather than a [BottomNavigationBar] because the docked FAB
-/// has to sit in a gap in the middle of the row; a stock bar would put its
-/// items underneath the button.
+/// Hand-rolled rather than a [BottomNavigationBar] because the docked action
+/// button occupies a gap in the middle of the row; a stock bar would place
+/// items beneath it.
 class _NavBar extends StatelessWidget {
   const _NavBar({
     required this.destinations,
@@ -116,7 +126,7 @@ class _NavBar extends StatelessWidget {
                     onTap: () => onSelected(i),
                   ),
                 ),
-                // Gap for the docked FAB, between the 2nd and 3rd item.
+                // Gap for the docked action button.
                 if (i == 1) const SizedBox(width: 72),
               ],
             ],
@@ -128,7 +138,8 @@ class _NavBar extends StatelessWidget {
 }
 
 class _NavItem extends StatelessWidget {
-  const _NavItem({required this.destination, required this.selected, required this.onTap});
+  const _NavItem(
+      {required this.destination, required this.selected, required this.onTap});
 
   final _Destination destination;
   final bool selected;
@@ -150,7 +161,8 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(selected ? destination.activeIcon : destination.icon, color: color, size: 24),
+            Icon(selected ? destination.activeIcon : destination.icon,
+                color: color, size: 24),
             const SizedBox(height: 2),
             Text(
               destination.label,

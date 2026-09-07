@@ -32,27 +32,24 @@ class LoopwellApp extends StatelessWidget {
             home: child,
           );
         },
-        // Built once and handed to every rebuild: the gate has to be the
-        // route's own widget, not a value computed out here, so that
-        // flipping the onboarding flag actually swaps what is on screen.
-        // MaterialApp only reads `home` when it builds the initial route,
-        // so a gate evaluated in this builder would be ignored from then on.
+        // MaterialApp only reads `home` when building the initial route, so
+        // the gate must be the route's own widget rather than a value
+        // computed here; otherwise later flag changes never reach the screen.
         child: const _RootGate(),
       ),
     );
   }
 }
 
-/// Decides between Onboarding (FR1) and the main app shell, and rebuilds
-/// itself whenever the store's onboarding flag changes. Sign Out flips that
-/// flag and pops back to this route, which is what returns the user to the
-/// welcome screens.
+/// Chooses between onboarding and the main shell, rebuilding whenever the
+/// onboarding flag changes. Sign-out flips the flag and pops to this route.
 class _RootGate extends StatelessWidget {
   const _RootGate();
 
   @override
   Widget build(BuildContext context) {
-    final onboarded = context.select<HabitStore, bool>((s) => s.onboardingComplete);
+    final onboarded =
+        context.select<HabitStore, bool>((s) => s.onboardingComplete);
     return onboarded ? const AppShell() : const OnboardingScreen();
   }
 }

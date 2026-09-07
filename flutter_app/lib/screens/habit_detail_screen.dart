@@ -8,9 +8,8 @@ import '../theme/app_theme.dart';
 import '../widgets/streak_heatmap.dart';
 import 'add_edit_habit_screen.dart';
 
-/// FR6. Streak, completion rate, and total completions alongside a 5-week
-/// heat map, so the trend is visible at a glance rather than just today's
-/// status. Laid out against design/screenshots/hifi_4_detail.png.
+/// Statistics for a single habit: current and best streak, completion rate,
+/// total completions and a five-week heat map.
 class HabitDetailScreen extends StatelessWidget {
   const HabitDetailScreen({super.key, required this.habitId});
 
@@ -22,10 +21,8 @@ class HabitDetailScreen extends StatelessWidget {
     final habit = store.byId(habitId);
 
     if (habit == null) {
-      // The habit was deleted (e.g. from the edit screen) while this route
-      // was still on the stack below it — bail out quietly rather than
-      // crashing on a null lookup; the pop from delete already handles
-      // returning to Home.
+      // The habit was deleted while this route was still on the stack.
+      // Render nothing rather than throwing; the delete already pops.
       return const Scaffold(body: SizedBox.shrink());
     }
 
@@ -76,7 +73,8 @@ class HabitDetailScreen extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Icon(HabitIcons.resolve(habit.iconKey), color: swatch, size: 28),
+                Icon(HabitIcons.resolve(habit.iconKey),
+                    color: swatch, size: 28),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   '${habit.currentStreak}',
@@ -99,21 +97,26 @@ class HabitDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
 
-          // Three stats with hairline dividers between, as in the Figma.
+          // Three statistics separated by hairline dividers.
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(child: _Stat(value: '${habit.bestStreak}', label: 'Best')),
-                VerticalDivider(width: 1, thickness: 1, color: theme.dividerColor),
+                Expanded(
+                    child: _Stat(value: '${habit.bestStreak}', label: 'Best')),
+                VerticalDivider(
+                    width: 1, thickness: 1, color: theme.dividerColor),
                 Expanded(
                   child: _Stat(
                     value: '${(habit.lifetimeCompletionRate * 100).round()}%',
                     label: 'Completion',
                   ),
                 ),
-                VerticalDivider(width: 1, thickness: 1, color: theme.dividerColor),
-                Expanded(child: _Stat(value: '${habit.totalCompletions}', label: 'Total')),
+                VerticalDivider(
+                    width: 1, thickness: 1, color: theme.dividerColor),
+                Expanded(
+                    child: _Stat(
+                        value: '${habit.totalCompletions}', label: 'Total')),
               ],
             ),
           ),
@@ -124,8 +127,7 @@ class HabitDetailScreen extends StatelessWidget {
           StreakHeatmap(habit: habit),
           const SizedBox(height: AppSpacing.lg),
 
-          // Today's completion, so Detail is not read-only — FR5 works from
-          // here as well as from Home.
+          // Completion is available here as well as on the dashboard.
           Card(
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(
@@ -133,7 +135,9 @@ class HabitDetailScreen extends StatelessWidget {
                 vertical: AppSpacing.xs,
               ),
               leading: Icon(
-                habit.isCompletedOn(today) ? Icons.check_circle_rounded : Icons.circle_outlined,
+                habit.isCompletedOn(today)
+                    ? Icons.check_circle_rounded
+                    : Icons.circle_outlined,
                 color: habit.isCompletedOn(today)
                     ? AppColors.teal
                     : theme.colorScheme.onSurfaceVariant,
@@ -252,7 +256,8 @@ class _Stat extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 2),
-        Text(label, style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
+        Text(label,
+            style: theme.textTheme.bodySmall, textAlign: TextAlign.center),
       ],
     );
   }

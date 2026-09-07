@@ -7,10 +7,8 @@ import '../services/habit_store.dart';
 import '../theme/app_theme.dart';
 import '../widgets/progress_ring.dart';
 
-/// The Stats destination behind the second bottom-nav icon. Habit Detail
-/// (FR6) answers "how is *this* habit going"; this screen answers "how is
-/// the week going overall", which is the question the Home summary card
-/// only answers for today.
+/// Aggregate statistics across every habit: a weekly completion rate and a
+/// per-habit ranking. The dashboard covers today; this covers the week.
 class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
 
@@ -38,8 +36,8 @@ class StatsScreen extends StatelessWidget {
       );
     }
 
-    // Last 7 days across every habit, counting only days each habit was
-    // actually scheduled — same honest denominator as the Home card.
+    // Last seven days across every habit, counting only the days each was
+    // actually scheduled.
     var scheduled = 0;
     var done = 0;
     for (final habit in habits) {
@@ -73,11 +71,11 @@ class StatsScreen extends StatelessWidget {
           96,
         ),
         children: [
-          Text('Stats', style: theme.textTheme.displaySmall?.copyWith(fontSize: 26)),
+          Text('Stats',
+              style: theme.textTheme.displaySmall?.copyWith(fontSize: 26)),
           const SizedBox(height: 2),
           Text('Your last 7 days', style: theme.textTheme.bodySmall),
           const SizedBox(height: AppSpacing.md),
-
           Card(
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
@@ -100,7 +98,8 @@ class StatsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Weekly completion', style: theme.textTheme.titleMedium),
+                        Text('Weekly completion',
+                            style: theme.textTheme.titleMedium),
                         const SizedBox(height: AppSpacing.xs),
                         Text(
                           '$done of $scheduled scheduled habit-days completed.',
@@ -114,7 +113,6 @@ class StatsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-
           Row(
             children: [
               Expanded(
@@ -135,7 +133,6 @@ class StatsScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-
           Text('By habit', style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
           for (final habit in ranked) ...[
@@ -149,7 +146,8 @@ class StatsScreen extends StatelessWidget {
 }
 
 class _MiniStat extends StatelessWidget {
-  const _MiniStat({required this.value, required this.label, required this.caption});
+  const _MiniStat(
+      {required this.value, required this.label, required this.caption});
   final String value;
   final String label;
   final String caption;
@@ -209,7 +207,8 @@ class _HabitRateRow extends StatelessWidget {
                 color: AppColors.tintFor(context, habit.colorIndex),
                 borderRadius: BorderRadius.circular(AppRadius.chip),
               ),
-              child: Icon(HabitIcons.resolve(habit.iconKey), color: swatch, size: 18),
+              child: Icon(HabitIcons.resolve(habit.iconKey),
+                  color: swatch, size: 18),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(

@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// One row in a Settings group: a card with a tinted leading icon, a title,
-/// an optional subtitle, and either a chevron or a custom trailing widget.
-/// Matches the individually-carded rows in
-/// design/screenshots/hifi_5_settings.png.
+/// A row in a Settings group: a card with a leading icon, a title, an
+/// optional subtitle and either a chevron or a custom trailing widget.
 class SettingsTile extends StatelessWidget {
   const SettingsTile({
     super.key,
@@ -50,7 +48,8 @@ class SettingsTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: theme.textTheme.titleMedium?.copyWith(color: titleColor),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(color: titleColor),
                     ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),

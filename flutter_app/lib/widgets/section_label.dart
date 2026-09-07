@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 
-/// The small uppercase group label used above each form section on
-/// Add / Edit Habit ("HABIT NAME", "ICON", ...) and above each Settings
-/// group ("PREFERENCES", "SUPPORT").
+/// Small uppercase label introducing a form section or settings group.
 class SectionLabel extends StatelessWidget {
   const SectionLabel(this.text, {super.key, this.padding});
 

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Fixed set of icons offered on the Add / Edit Habit screen. A Habit
-/// stores the String key (not an IconData) so the icon choice can be
-/// persisted safely as JSON.
+/// The icons offered when creating a habit. A [Habit] stores the string key
+/// rather than an `IconData` so the choice persists safely as JSON.
 class HabitIcons {
   HabitIcons._();
 

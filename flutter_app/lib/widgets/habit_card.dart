@@ -4,10 +4,9 @@ import '../models/habit.dart';
 import '../models/habit_icons.dart';
 import '../theme/app_theme.dart';
 
-/// One row on the Home screen: icon, name, a short status line, and a
-/// tappable completion circle. Tapping the card body opens Habit Detail;
-/// tapping the circle toggles today's completion in place without leaving
-/// Home (FR2 + FR5).
+/// A habit row: icon, name, status line and a completion control. Tapping
+/// the body opens the habit's detail; tapping the circle toggles today's
+/// completion without leaving the list.
 class HabitCard extends StatelessWidget {
   const HabitCard({
     super.key,
@@ -42,8 +41,8 @@ class HabitCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Semantics(
-      // Distinguishes the body tap (open details) from the tick circle,
-      // which publishes its own node.
+      // Distinguishes the body tap from the completion circle, which
+      // publishes its own node.
       onTapHint: 'open ${habit.name} details',
       child: Card(
         clipBehavior: Clip.antiAlias,
@@ -102,10 +101,9 @@ class HabitCard extends StatelessWidget {
   }
 }
 
-/// The tick circle. Drawn at 28px to match the Figma card, but wrapped in a
-/// 44x44 gesture area so it still clears the WCAG 2.1 AA / NFR minimum
-/// touch target — the visual size and the hit size are deliberately
-/// different here.
+/// The completion control. Painted at 28px but wrapped in a 44x44 gesture
+/// area to meet the minimum touch target; the painted and hit sizes differ
+/// deliberately.
 class CompletionCircle extends StatelessWidget {
   const CompletionCircle({
     super.key,
@@ -125,9 +123,8 @@ class CompletionCircle extends StatelessWidget {
     final border = Theme.of(context).dividerColor;
 
     return Semantics(
-      // container: true keeps this out of the enclosing card's merged
-      // semantics node, so the tick is exposed as its own control rather
-      // than the whole row being announced as one checkbox.
+      // Keeps this out of the card's merged semantics node so it is exposed
+      // as its own control, rather than the whole row reading as a checkbox.
       container: true,
       button: true,
       checked: completed,
