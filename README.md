@@ -21,14 +21,22 @@ Full set, including onboarding and dark mode, in [`screenshots/`](screenshots/).
 ## Running it
 
 ```bash
-cd flutter_app
-flutter pub get
-flutter run          # or: flutter run -d chrome
+git clone https://github.com/Sapun2/loopwell.git
+cd loopwell
+./run.sh          # Windows: run.bat
 ```
 
-**Full step-by-step instructions for any device — Android emulator, iOS
-simulator, Chrome, a real phone, or desktop — are in
-[`RUN_GUIDE.md`](RUN_GUIDE.md).**
+That installs dependencies, finds a device, and launches — an emulator if one
+is running, otherwise Chrome. The only prerequisite is
+[Flutter](https://docs.flutter.dev/get-started/install).
+
+```bash
+./run.sh android    # force an Android emulator (starts it for you)
+./run.sh chrome     # force the browser
+```
+
+See [`RUN_GUIDE.md`](RUN_GUIDE.md) for the 5-step Android emulator setup, and
+[`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) for the presentation walkthrough.
 
 Built and verified against **Flutter 3.47.2 / Dart 3.13.2** (stable). The
 project has platform folders for Android, iOS, web, macOS, Linux and Windows.
@@ -73,7 +81,9 @@ Beyond the original scope, the app also adds a **Stats** overview, an on-device
 ```
 Loopwell_Flutter_App/
 ├── README.md               this file
+├── run.sh / run.bat        one-command launcher
 ├── RUN_GUIDE.md            how to run it on any device
+├── DEMO_SCRIPT.md          presentation walkthrough (weeks 11-12)
 ├── REPORT.md               the Assessment 3 report
 ├── docs/                   the report as .docx and .pdf for submission
 ├── flutter_app/            the Flutter project
