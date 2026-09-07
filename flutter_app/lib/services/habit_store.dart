@@ -30,7 +30,7 @@ class HabitStore extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   bool _onboardingComplete = false;
   bool _notificationsEnabled = false;
-  String _userName = 'Alex Kim';
+  String _userName = 'Pradeep Bhandari';
 
   List<Habit> get habits => List.unmodifiable(_habits);
   ThemeMode get themeMode => _themeMode;
@@ -38,7 +38,7 @@ class HabitStore extends ChangeNotifier {
   bool get notificationsEnabled => _notificationsEnabled;
   String get userName => _userName;
 
-  /// Initials for the Settings profile avatar ("Alex Kim" -> "AK").
+  /// Initials for the Settings profile avatar ("Pradeep Bhandari" -> "PB").
   String get userInitials {
     final parts = _userName.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
     if (parts.isEmpty) return '?';
@@ -81,7 +81,7 @@ class HabitStore extends ChangeNotifier {
       _themeMode = ThemeMode.values[modeIndex];
     }
 
-    _userName = _prefs.getString(_userNameKey) ?? 'Alex Kim';
+    _userName = _prefs.getString(_userNameKey) ?? 'Pradeep Bhandari';
 
     final raw = _prefs.getString(_habitsKey);
     if (raw != null && raw.isNotEmpty) {

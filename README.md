@@ -23,8 +23,12 @@ Full set, including onboarding and dark mode, in [`screenshots/`](screenshots/).
 ```bash
 cd flutter_app
 flutter pub get
-flutter run
+flutter run          # or: flutter run -d chrome
 ```
+
+**Full step-by-step instructions for any device — Android emulator, iOS
+simulator, Chrome, a real phone, or desktop — are in
+[`RUN_GUIDE.md`](RUN_GUIDE.md).**
 
 Built and verified against **Flutter 3.47.2 / Dart 3.13.2** (stable). The
 project has platform folders for Android, iOS, web, macOS, Linux and Windows.
@@ -68,6 +72,10 @@ Beyond the original scope, the app also adds a **Stats** overview, an on-device
 
 ```
 Loopwell_Flutter_App/
+├── README.md               this file
+├── RUN_GUIDE.md            how to run it on any device
+├── REPORT.md               the Assessment 3 report
+├── docs/                   the report as .docx and .pdf for submission
 ├── flutter_app/            the Flutter project
 │   ├── lib/
 │   │   ├── main.dart               root gate: onboarding vs. app shell
@@ -84,6 +92,12 @@ Loopwell_Flutter_App/
 ├── spec/PRD.md             requirements, data model, navigation map
 └── screenshots/            screenshots of the running Flutter app
 ```
+
+## Assessment 3 links
+
+- **Report:** [`REPORT.md`](REPORT.md) — also in [`docs/`](docs/) as `.docx` and `.pdf`
+- **Figma high-fidelity prototype:** <https://www.figma.com/design/yZf92ARQOn7lqavVbicKaS/Loopwell---UX-Prototype--ICT725-?node-id=14-3>
+- **GitHub repository:** <https://github.com/Sapun2/loopwell>
 
 ## Architecture notes
 
