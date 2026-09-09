@@ -13,6 +13,19 @@ set -euo pipefail
 AVD_NAME="Loopwell"
 API="35"
 
+if [ "$(id -u)" -eq 0 ]; then
+  cat <<'MSG'
+This script must NOT be run with sudo or as root.
+
+Homebrew refuses to install as root, and an Android SDK owned by root cannot
+be used from your normal account. Run it again as yourself:
+
+    ./setup_mac.sh
+
+MSG
+  exit 1
+fi
+
 say()  { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 warn() { printf '\033[33m    %s\033[0m\n' "$*"; }
 
@@ -58,6 +71,19 @@ fi
 
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
 
+# --- Java (sdkmanager and avdmanager are Java programs) --------------------
+if /usr/libexec/java_home >/dev/null 2>&1; then
+  say "Java already available"
+else
+  say "Installing Java (required by the Android tools)"
+  brew install --quiet openjdk@17
+  sudo ln -sfn "$BREW_PREFIX/opt/openjdk@17/libexec/openjdk.jdk" \
+    /Library/Java/JavaVirtualMachines/openjdk-17.jdk 2>/dev/null || true
+fi
+JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null || echo "$BREW_PREFIX/opt/openjdk@17")"
+export JAVA_HOME
+export PATH="$JAVA_HOME/bin:$PATH"
+
 say "Installing the Android platform, emulator and system image (a few GB)"
 sdkmanager --install \
   "platform-tools" \
@@ -93,6 +119,7 @@ if ! grep -q "ANDROID_HOME=$ANDROID_HOME" "$SHELL_RC" 2>/dev/null; then
     echo "export ANDROID_HOME=\"$ANDROID_HOME\""
     echo 'export ANDROID_SDK_ROOT="$ANDROID_HOME"'
     echo 'export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"'
+    echo 'export JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null)"'
   } >> "$SHELL_RC"
 else
   say "$SHELL_RC already configured"

@@ -80,6 +80,10 @@ From inside the folder you just cloned:
 ./setup_mac.sh
 ```
 
+**Run it as yourself — not with `sudo`.** Homebrew refuses to install as root,
+and an SDK owned by root is unusable from your normal account. The script
+checks and stops if you do.
+
 This installs Homebrew (if missing), Flutter, the Android SDK, and creates an
 emulator called **Loopwell**. It detects Apple Silicon vs Intel and picks the
 right system image automatically. It is safe to re-run — anything already
@@ -162,6 +166,10 @@ rather than an app one. In order of preference:
 | `No Android emulator available` | Re-run `./setup_mac.sh`; it will report what failed |
 | Emulator boots but stays black | Give it 2–3 minutes on first boot; if still black, `emulator -avd Loopwell -gpu swiftshader_indirect` |
 | Android licence errors | `flutter doctor --android-licenses` and accept all |
+| `This script must NOT be run with sudo` | You're root. Run `exit` until `whoami` shows your own name, then `./setup_mac.sh` |
+| Homebrew warns about an old macOS | Harmless here. The warning concerns formulae built from source; Flutter and the Android tools install as prebuilt casks |
+| `sdkmanager: command not found` after setup | Open a new Terminal window |
+| `Unable to locate a Java Runtime` | Re-run `./setup_mac.sh`; it installs a JDK |
 | Gradle build hangs | First build genuinely takes minutes. If it fails: `cd flutter_app && flutter clean && cd .. && ./run.sh android` |
 | Anything else | `flutter doctor -v` reports exactly what's missing |
 
