@@ -64,8 +64,32 @@ if ! grep -q "brew shellenv" "$ZPROFILE" 2>/dev/null; then
 fi
 
 # --- Flutter --------------------------------------------------------------
+# The app uses RadioGroup (Flutter 3.32+) and CardThemeData / Color.withValues
+# (3.27+), so a pre-existing but older Flutter will fail to compile. Check the
+# version, not merely that the command exists.
+MIN_FLUTTER="3.32.0"
+
+version_lt() {
+  [ "$1" = "$2" ] && return 1
+  [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" = "$1" ]
+}
+
 if command -v flutter >/dev/null 2>&1; then
-  say "Flutter already installed — $(flutter --version 2>/dev/null | head -1)"
+  FLUTTER_VER="$(flutter --version 2>/dev/null | head -1 | awk '{print $2}')"
+  say "Flutter $FLUTTER_VER already installed"
+  if version_lt "$FLUTTER_VER" "$MIN_FLUTTER"; then
+    warn "This project needs Flutter $MIN_FLUTTER or newer. Upgrading..."
+    flutter upgrade --force || warn "flutter upgrade failed — upgrade it manually"
+    FLUTTER_VER="$(flutter --version 2>/dev/null | head -1 | awk '{print $2}')"
+    if version_lt "$FLUTTER_VER" "$MIN_FLUTTER"; then
+      echo
+      echo "Flutter is still $FLUTTER_VER, which is too old to build this app."
+      echo "Install a current Flutter from https://docs.flutter.dev/get-started/install"
+      echo "and make sure it comes first on your PATH, then run this script again."
+      exit 1
+    fi
+    say "Flutter is now $FLUTTER_VER"
+  fi
 else
   say "Installing Flutter (large download, please wait)"
   brew install --cask flutter
