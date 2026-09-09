@@ -117,11 +117,21 @@ export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 # Flutter is pointed at JDK 17 through `flutter config --jdk-dir`, which is
 # scoped to Flutter. JAVA_HOME is deliberately left alone so that whatever the
 # rest of the machine uses is not disturbed.
-JDK_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+# java_home -v 17 silently returns the newest JDK when 17 is absent, so the
+# path it hands back must be verified rather than trusted.
+jdk17_home() {
+  local home
+  home="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+  [ -n "$home" ] && [ -x "$home/bin/java" ] || return 1
+  "$home/bin/java" -version 2>&1 | head -1 | grep -q '"17\.' || return 1
+  echo "$home"
+}
+
+JDK_HOME="$(jdk17_home || true)"
 if [ -z "$JDK_HOME" ]; then
   say "Installing Java 17 (Gradle does not support newer JDKs)"
   brew install --cask temurin@17
-  JDK_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+  JDK_HOME="$(jdk17_home || true)"
 fi
 
 if [ -n "$JDK_HOME" ]; then
