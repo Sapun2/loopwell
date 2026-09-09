@@ -4,3 +4,8 @@
 # source. Kept locally, out of the public repo. (The Assessment 3 report
 # itself lives in docs/ and IS committed.)
 ICT725*.docx
+
+# JetBrains / Android Studio project files. `flutter create` regenerates these
+# on every run; they are per-machine and not part of the source.
+.idea/
+*.iml

@@ -127,3 +127,20 @@ flutter test      # expected: "All tests passed!" (15 tests)
 
 **To reset the app to a fresh first launch:** uninstall it from the
 emulator/phone, or in Chrome open DevTools → *Application* → *Clear site data*.
+
+---
+
+## After running `flutter create`
+
+Regenerating the platform folders (see the Gradle troubleshooting note above)
+also restores two things this project deliberately replaced:
+
+```bash
+cd flutter_app
+rm -f test/widget_test.dart      # scaffold counter test; the real tests are in test/habit_test.dart
+rm -rf .idea *.iml android/*.iml # per-machine IDE files
+```
+
+Leave `test/habit_test.dart` alone — that is the real test suite. Without the
+first line, `flutter analyze` and `flutter test` both fail on a generated test
+that references a `MyApp` class this project does not have.
