@@ -18,31 +18,54 @@ flutter pub get
 
 WANT="${1:-auto}"
 
+wait_for_emulator() {
+  printf "    waiting for it to boot"
+  for _ in $(seq 1 90); do
+    if flutter devices 2>/dev/null | grep -qi "emulator-"; then
+      echo " ready"
+      return 0
+    fi
+    printf "."
+    sleep 3
+  done
+  echo
+  return 1
+}
+
 launch_android() {
   # Already running?
   if flutter devices 2>/dev/null | grep -qi "emulator-"; then
     echo "==> Using the running Android emulator"
     exec flutter run
   fi
-  # Not running, but one is configured — boot it and wait.
-  EMU=$(flutter emulators 2>/dev/null | grep -iE "android" | head -1 | awk '{print $1}')
+
+  # Configured in Flutter (the usual case when Android Studio is installed).
+  EMU=$(flutter emulators 2>/dev/null | grep -iE "•.*android" | head -1 | awk '{print $1}')
   if [ -n "$EMU" ]; then
     echo "==> Starting Android emulator: $EMU"
     flutter emulators --launch "$EMU" >/dev/null 2>&1 || true
-    printf "    waiting for it to boot"
-    for _ in $(seq 1 60); do
-      if flutter devices 2>/dev/null | grep -qi "emulator-"; then echo " ready"; exec flutter run; fi
-      printf "."; sleep 3
-    done
-    echo
-    echo "    emulator did not come up in time."
+    wait_for_emulator && exec flutter run
   fi
+
+  # Fall back to the SDK's emulator binary directly. Flutter does not always
+  # enumerate AVDs when only the command-line tools are installed.
+  EMU_BIN="$(command -v emulator || echo "${ANDROID_HOME:-$HOME/Library/Android/sdk}/emulator/emulator")"
+  if [ -x "$EMU_BIN" ]; then
+    AVD=$("$EMU_BIN" -list-avds 2>/dev/null | head -1)
+    if [ -n "$AVD" ]; then
+      echo "==> Starting Android emulator: $AVD"
+      "$EMU_BIN" -avd "$AVD" >/dev/null 2>&1 &
+      wait_for_emulator && exec flutter run
+    fi
+  fi
+
+  echo "    no Android emulator could be started."
   return 1
 }
 
 case "$WANT" in
   chrome) echo "==> Launching in Chrome"; exec flutter run -d chrome ;;
-  android) launch_android || { echo "No Android emulator available. Create one in Android Studio (More Actions > Virtual Device Manager)."; exit 1; } ;;
+  android) launch_android || { echo "No Android emulator available. Run ./setup_mac.sh to create one."; exit 1; } ;;
   auto)
     launch_android 2>/dev/null || true
     if flutter devices 2>/dev/null | grep -qiE "ios simulator"; then

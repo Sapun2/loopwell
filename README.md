@@ -35,8 +35,13 @@ is running, otherwise Chrome. The only prerequisite is
 ./run.sh chrome     # force the browser
 ```
 
-See [`RUN_GUIDE.md`](RUN_GUIDE.md) for the 5-step Android emulator setup, and
-[`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) for the presentation walkthrough.
+See [`RUN_GUIDE.md`](RUN_GUIDE.md) for the 5-step Android emulator setup,
+[`HANDOVER.md`](HANDOVER.md) for setting the project up on another Mac over
+AnyDesk, and [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) for the presentation
+walkthrough.
+
+On a Mac with nothing installed, `./setup_mac.sh` installs Flutter, the Android
+SDK and an emulator in one step.
 
 Built and verified against **Flutter 3.47.2 / Dart 3.13.2** (stable). The
 project has platform folders for Android, iOS, web, macOS, Linux and Windows.
@@ -82,7 +87,9 @@ Beyond the original scope, the app also adds a **Stats** overview, an on-device
 Loopwell_Flutter_App/
 ├── README.md               this file
 ├── run.sh / run.bat        one-command launcher
+├── setup_mac.sh            one-time setup for a fresh Mac
 ├── RUN_GUIDE.md            how to run it on any device
+├── HANDOVER.md             setting up on another Mac over AnyDesk
 ├── DEMO_SCRIPT.md          presentation walkthrough (weeks 11-12)
 ├── REPORT.md               the Assessment 3 report
 ├── docs/                   the report as .docx and .pdf for submission

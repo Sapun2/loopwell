@@ -36,6 +36,10 @@ one-time, 10-minute install.
 
 The demo is marked on an emulator, so set this up **before the day**.
 
+> **Starting from a Mac with nothing installed?** `./setup_mac.sh` does all of
+> this for you — Flutter, the Android SDK and an emulator, in one command. See
+> [`HANDOVER.md`](HANDOVER.md), which also covers running it over AnyDesk.
+
 1. Install **Android Studio** — <https://developer.android.com/studio>
 2. Open it → **More Actions → Virtual Device Manager → Create Device**.
    Pick **Pixel 7**, download the suggested system image, click Finish.
