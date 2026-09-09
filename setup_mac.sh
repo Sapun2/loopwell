@@ -50,6 +50,19 @@ fi
 
 BREW_PREFIX="$(brew --prefix)"
 
+# Homebrew does not add itself to the shell profile; without this a new
+# Terminal cannot find brew, and therefore cannot find flutter.
+BREW_BIN="$(command -v brew)"
+ZPROFILE="$HOME/.zprofile"
+if ! grep -q "brew shellenv" "$ZPROFILE" 2>/dev/null; then
+  say "Adding Homebrew to $ZPROFILE"
+  {
+    echo ''
+    echo '# Homebrew (added by Loopwell setup_mac.sh)'
+    echo "eval \"\$($BREW_BIN shellenv)\""
+  } >> "$ZPROFILE"
+fi
+
 # --- Flutter --------------------------------------------------------------
 if command -v flutter >/dev/null 2>&1; then
   say "Flutter already installed — $(flutter --version 2>/dev/null | head -1)"
