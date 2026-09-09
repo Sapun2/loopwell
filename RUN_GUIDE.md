@@ -121,6 +121,7 @@ flutter test      # expected: "All tests passed!" (15 tests)
 | `Address already in use` | An old run is still going: `pkill -f "flutter run"`, then retry |
 | `Waiting for another flutter command...` | `killall -9 dart` (macOS/Linux), then retry |
 | Android licence errors | `flutter doctor --android-licenses`, accept all |
+| Gradle fails with only a version number as the error | JDK too new for Gradle: `brew install --cask temurin@17` then `flutter config --jdk-dir "$(/usr/libexec/java_home -v 17)"` |
 | Anything else | From `flutter_app/`: `flutter clean && flutter pub get`, then run again |
 
 `flutter doctor -v` tells you exactly what your machine is missing.

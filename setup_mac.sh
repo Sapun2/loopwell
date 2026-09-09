@@ -108,18 +108,30 @@ fi
 
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
 
-# --- Java (sdkmanager and avdmanager are Java programs) --------------------
-if /usr/libexec/java_home >/dev/null 2>&1; then
-  say "Java already available"
-else
-  say "Installing Java (required by the Android tools)"
-  brew install --quiet openjdk@17
-  sudo ln -sfn "$BREW_PREFIX/opt/openjdk@17/libexec/openjdk.jdk" \
-    /Library/Java/JavaVirtualMachines/openjdk-17.jdk 2>/dev/null || true
+# --- Java -----------------------------------------------------------------
+# Gradle 8.x supports Java 17 to 23. On a machine with a newer JDK the Android
+# build fails with the JDK version as the entire error message ("What went
+# wrong: 26.0.1"), which is impossible to diagnose from the text alone. So it
+# is not enough for *some* Java to be present: Gradle needs a compatible one.
+#
+# Flutter is pointed at JDK 17 through `flutter config --jdk-dir`, which is
+# scoped to Flutter. JAVA_HOME is deliberately left alone so that whatever the
+# rest of the machine uses is not disturbed.
+JDK_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+if [ -z "$JDK_HOME" ]; then
+  say "Installing Java 17 (Gradle does not support newer JDKs)"
+  brew install --cask temurin@17
+  JDK_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
 fi
-JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null || echo "$BREW_PREFIX/opt/openjdk@17")"
-export JAVA_HOME
-export PATH="$JAVA_HOME/bin:$PATH"
+
+if [ -n "$JDK_HOME" ]; then
+  say "Using Java 17 for Gradle: $JDK_HOME"
+  flutter config --jdk-dir "$JDK_HOME" >/dev/null 2>&1 || \
+    warn "Could not set Flutter's JDK; run: flutter config --jdk-dir \"$JDK_HOME\""
+else
+  warn "No Java 17 found. If the Android build fails with a bare version"
+  warn "number, install it with: brew install --cask temurin@17"
+fi
 
 # Licences first: sdkmanager otherwise stops mid-download to prompt for each
 # one, which turns an unattended install into a babysitting job.
@@ -158,7 +170,6 @@ if ! grep -q "ANDROID_HOME=$ANDROID_HOME" "$SHELL_RC" 2>/dev/null; then
     echo "export ANDROID_HOME=\"$ANDROID_HOME\""
     echo 'export ANDROID_SDK_ROOT="$ANDROID_HOME"'
     echo 'export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"'
-    echo 'export JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null)"'
   } >> "$SHELL_RC"
 else
   say "$SHELL_RC already configured"

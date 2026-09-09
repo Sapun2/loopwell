@@ -170,6 +170,7 @@ rather than an app one. In order of preference:
 | Homebrew warns about an old macOS | Harmless here. The warning concerns formulae built from source; Flutter and the Android tools install as prebuilt casks |
 | `sdkmanager: command not found` after setup | Open a new Terminal window |
 | `Unable to locate a Java Runtime` | Re-run `./setup_mac.sh`; it installs a JDK |
+| Gradle build fails and the whole error is a version number, e.g. `What went wrong: 26.0.1` | Your JDK is too new for Gradle. `brew install --cask temurin@17` then `flutter config --jdk-dir "$(/usr/libexec/java_home -v 17)"` |
 | Gradle build hangs | First build genuinely takes minutes. If it fails: `cd flutter_app && flutter clean && cd .. && ./run.sh android` |
 | Anything else | `flutter doctor -v` reports exactly what's missing |
 
