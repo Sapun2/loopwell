@@ -7,6 +7,18 @@ set -e
 
 cd "$(dirname "$0")/flutter_app"
 
+# Put the Android tools on PATH ourselves. Relying on the shell profile fails
+# in any terminal that was opened before setup wrote it.
+for _sdk in "${ANDROID_HOME:-}" \
+            "$(brew --prefix 2>/dev/null)/share/android-commandlinetools" \
+            "$HOME/Library/Android/sdk"; do
+  [ -n "$_sdk" ] && [ -d "$_sdk/platform-tools" ] || continue
+  export ANDROID_HOME="$_sdk"
+  export ANDROID_SDK_ROOT="$_sdk"
+  export PATH="$_sdk/platform-tools:$_sdk/emulator:$_sdk/cmdline-tools/latest/bin:$PATH"
+  break
+done
+
 if ! command -v flutter >/dev/null 2>&1; then
   echo "Flutter is not installed, or not on your PATH."
   echo "Install it from https://docs.flutter.dev/get-started/install and try again."
@@ -18,10 +30,19 @@ flutter pub get
 
 WANT="${1:-auto}"
 
+# The device id of the first fully-booted emulator, if any.
+emulator_device() {
+  adb devices 2>/dev/null | awk '/^emulator-/ && $2 == "device" { print $1; exit }'
+}
+
+# An emulator reports itself to adb long before Android has finished booting,
+# so presence alone is not enough — wait for sys.boot_completed.
 wait_for_emulator() {
   printf "    waiting for it to boot"
   for _ in $(seq 1 90); do
-    if flutter devices 2>/dev/null | grep -qi "emulator-"; then
+    DEVICE="$(emulator_device)"
+    if [ -n "$DEVICE" ] && \
+       [ "$(adb -s "$DEVICE" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; then
       echo " ready"
       return 0
     fi
@@ -32,11 +53,23 @@ wait_for_emulator() {
   return 1
 }
 
+# Always pass -d. Without it, Flutter prompts to choose between macOS, Chrome
+# and the emulator, and picking a desktop target fails without Xcode.
+run_on_emulator() {
+  DEVICE="$(emulator_device)"
+  if [ -z "$DEVICE" ]; then
+    echo "    emulator booted but adb cannot see it."
+    return 1
+  fi
+  echo "==> Running on $DEVICE"
+  exec flutter run -d "$DEVICE"
+}
+
 launch_android() {
-  # Already running?
-  if flutter devices 2>/dev/null | grep -qi "emulator-"; then
+  # Already running and fully booted?
+  if [ -n "$(emulator_device)" ]; then
     echo "==> Using the running Android emulator"
-    exec flutter run
+    run_on_emulator
   fi
 
   # Configured in Flutter (the usual case when Android Studio is installed).
@@ -44,7 +77,7 @@ launch_android() {
   if [ -n "$EMU" ]; then
     echo "==> Starting Android emulator: $EMU"
     flutter emulators --launch "$EMU" >/dev/null 2>&1 || true
-    wait_for_emulator && exec flutter run
+    wait_for_emulator && run_on_emulator
   fi
 
   # Fall back to the SDK's emulator binary directly. Flutter does not always
@@ -55,7 +88,7 @@ launch_android() {
     if [ -n "$AVD" ]; then
       echo "==> Starting Android emulator: $AVD"
       "$EMU_BIN" -avd "$AVD" >/dev/null 2>&1 &
-      wait_for_emulator && exec flutter run
+      wait_for_emulator && run_on_emulator
     fi
   fi
 
