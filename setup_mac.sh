@@ -97,15 +97,17 @@ JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null || echo "$BREW_PREFIX/opt/openjd
 export JAVA_HOME
 export PATH="$JAVA_HOME/bin:$PATH"
 
+# Licences first: sdkmanager otherwise stops mid-download to prompt for each
+# one, which turns an unattended install into a babysitting job.
+say "Accepting the Android SDK licences"
+yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
 say "Installing the Android platform, emulator and system image (a few GB)"
-sdkmanager --install \
+yes | sdkmanager --install \
   "platform-tools" \
   "emulator" \
   "platforms;android-$API" \
   "system-images;android-$API;google_apis;$ABI"
-
-say "Accepting the Android SDK licences"
-yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
 # --- Emulator -------------------------------------------------------------
 if avdmanager list avd 2>/dev/null | grep -q "Name: $AVD_NAME"; then
